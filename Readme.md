@@ -1,3 +1,3 @@
-Image Generator Service
+# Image Generator Service
 
 To be updated

@@ -6,19 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Center Text</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             background-color: #2f2f2f;
             height: 100vh;
-            margin: 1rem;
-            padding: 0;
+            padding: 1rem;
+            margin: 0;
+        }
+        
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
             background-image: url('https://c4.wallpaperflare.com/wallpaper/276/453/83/madara-uchiha-uchiha-naruto-anime-naruto-wallpaper-preview.jpg');
             background-position: center;
             background-size: cover;
             background-repeat: no-repeat;
+            border-radius: 16px;
         }
 
         #quote {
@@ -30,6 +39,14 @@
             flex-direction: column;
             justify-content: center;
         }
+
+        h1 {
+            margin-top: auto;
+        }
+
+        .date {
+            margin-top: auto;
+        }
     </style>
 </head>
 <body>
@@ -37,6 +54,7 @@
         <div id="quote">
             <h1>Wake up to reality. Nothing ever goes as planned in this accursed world.</h1>
             <p>- Madara Uchiha</p>
+            <p class="date">{{ date }}</p>
         </div>
     </main>
 </body>

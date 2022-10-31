@@ -11,15 +11,18 @@ app.use(express.static('public'));
 app.use(express.static('templates'));
 
 app.get('/convert', async (req, res) => {
-
-    const html = fs.readFileSync(path.join(__dirname, '/templates/center.html'), { encoding: 'utf-8'});
-    const result = await htmlToImage({
-        html, output: './output.png'
-    });
-
-    if (result)
-        return res.sendFile(path.join(__dirname, '/output.png'));
-    return res.send("Failed!");
+    try {
+        const html = fs.readFileSync(path.join(__dirname, '/templates/center.html'), { encoding: 'utf-8'});
+        const result = await htmlToImage({ html, content: { date: new Date().toDateString() } });
+        
+        if (result) {
+            res.writeHead(200, { 'Content-Type': 'image/png'});
+            return res.end(result, 'binary');
+        }
+        throw new Error('Failed to generate image');
+    } catch (error) {
+        return res.send("Failed! Please try again");
+    }
 });
 
 app.listen(PORT, () => console.log("App started on port: "+PORT))
