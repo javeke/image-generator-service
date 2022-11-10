@@ -8,7 +8,8 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const nodeFetch = require('node-fetch');
 const ytdl = require('ytdl-core');
-const ffmpeg = require('ffmpeg');
+const createFFmpeg = require('@ffmpeg/ffmpeg').createFFmpeg;
+const fetchFile = require('@ffmpeg/ffmpeg').fetchFile;
 
 const app = express();
 app.use(express.static('public'));
@@ -17,6 +18,9 @@ app.use(morgan('combined'))
 app.use(express.static('templates'));
 
 dotenv.config();
+
+
+const ffmpeg = createFFmpeg({ log: true });
 
 const PORT = process.env.PORT;
 const igUsername = process.env.IG_USERNAME;
@@ -33,6 +37,10 @@ async function initializeApp() {
     catch(error) {
         console.log(error);
     }
+}
+
+async function initializeFFmpeg() {
+    await ffmpeg.load();
 }
 
 app.get('/health', async (req, res)=>{
@@ -87,8 +95,14 @@ app.get('/download', async (req, res) => {
     const { vId } = req.query;
     const videoInfo = await ytdl.getInfo(vId);
 
+    const fileName = 'boondocks';
+    const MP4_FORMAT = 'mp4';
+    const tempFileName = 'temp';
+    const startTimeInS = '0.0';
+    const durationInS = '60.0';
+
     const highestFormats = videoInfo.formats
-        .filter( format => format.container === 'mp4' && format.hasAudio && format.hasVideo )
+        .filter( format => format.container === MP4_FORMAT && format.hasAudio && format.hasVideo )
         .sort( (format1, format2) => format1.bitrate > format2.bitrate );
 
     const highestFormat = highestFormats.length > 0 ? highestFormats[0] : null; 
@@ -100,35 +114,37 @@ app.get('/download', async (req, res) => {
     }
     
     const response = ytdl(`https://www.youtube.com/watch?v=${vId}`, {
-        filter: format => format.container === 'mp4' && format.hasAudio && format.hasVideo,
+        filter: format => format.container === MP4_FORMAT && format.hasAudio && format.hasVideo,
         quality: 'highest',
     })
-    .pipe(fs.createWriteStream('boondocks.mp4'));
-    
-    try {
+    .pipe(fs.createWriteStream(`${fileName}.${MP4_FORMAT}`));
 
-        let videoProcess = await new ffmpeg(path.join(__dirname, '/boondocks.mp4'));
-
-        const savedPath = await videoProcess.setVideoStartTime(40)
-            .setVideoDuration(10)
-            .save('boondocks.mp4');
-        
-        console.log(savedPath);
-    }
-    catch(error){
-        console.error(error);
-        return res.send({
-            success: false, 
-            message: `Internal Server Error: ${error.code}`
-        });
-    }
-    return res.json({
-        success: true,
-        message: 'File Saved'
-    });
+    response.addListener('close', async () => {
+        try {
+            ffmpeg.FS('writeFile', `${fileName}.${MP4_FORMAT}`, await fetchFile(path.join(__dirname, `/${fileName}.${MP4_FORMAT}`)));
+            await ffmpeg.run('-i', `${fileName}.${MP4_FORMAT}`, '-t', durationInS, '-ss', startTimeInS, `${tempFileName}.${MP4_FORMAT}`);
+            fs.writeFileSync(path.join(__dirname, `/${fileName}-cut.${MP4_FORMAT}`), ffmpeg.FS('readFile', `${tempFileName}.${MP4_FORMAT}`));
+            ffmpeg.FS('unlink', `${fileName}.${MP4_FORMAT}`);
+            ffmpeg.FS('unlink', `${tempFileName}.${MP4_FORMAT}`);
+            fs.unlinkSync(path.join(__dirname, `${fileName}.${MP4_FORMAT}`));
+            
+            res.json({
+                success: true,
+                message: 'File Converted'
+            });
+        }
+        catch(error){
+            console.error(error);
+            res.json({
+                success: false,
+                message: `Internal Server Error: ${error}`
+            });
+        }
+    }); 
 })
 
 app.listen(PORT, async () => {
     // await initializeApp();
+    await initializeFFmpeg();
     console.log("App started on port: "+PORT);
 });

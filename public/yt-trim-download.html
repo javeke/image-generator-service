@@ -1,0 +1,28 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Trims and download a Youtube video with the url provided by the user">
+        <title>Trim and Download Youtube Video</title>
+
+        <link rel="stylesheet" href="css/yt-trim-download.css">
+    </head>
+    <body>
+        <main id="main-container">
+            <div class="downloader-container">
+                <video id="video"></video>
+                <form action="" class="download-form">    
+                    <input id="url-input" type="text" placeholder="Enter Youtube url here...">
+                    <input id="start-input" type="text" placeholder="Start time">
+                    <input id="end-input" type="text" placeholder="End time">
+                    <div id="download">
+                        <button id="download-btn" type="submit">Download</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <script src="js/yt-trim-download.js" defer></script>
+    </body>
+</html>

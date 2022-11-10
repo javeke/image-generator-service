@@ -1,0 +1,41 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-size: 12px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: #e7e7e7;
+}
+
+.downloader-container {
+    display: grid;
+    grid-template-columns: auto;
+    place-items: center;
+}
+
+input {
+    padding: 0.5em 1em;
+}
+
+.download-form {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 1em;
+}
+
+#url-input, #download {
+    grid-column: span 2;
+}
+
+#download {
+    display: grid;
+    place-items: center;
+}
+
+#download-btn {
+    padding: 0.5em 1em;
+    font-weight: bold;
+}
