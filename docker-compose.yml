@@ -1,0 +1,14 @@
+version: '3.5'
+
+services:
+  image-generator:
+    container_name: image-ws
+    build: 
+      context: .
+    image: javeke/image-generator
+    working_dir: /usr/app
+    env_file: 
+     - .env
+    tty: true
+    ports:
+      - "5500:5500"

@@ -13,46 +13,55 @@
         body {
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             background-color: #2f2f2f;
-            padding: 1rem;
             margin: 0;
-            height: 400px;
-            width: 600px;
+            padding: 0;
+            height: 640px;
+            width: 360px;
         }
         
         main {
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: url('https://c4.wallpaperflare.com/wallpaper/276/453/83/madara-uchiha-uchiha-naruto-anime-naruto-wallpaper-preview.jpg');
+            background-image: url('https://aniyuki.com/wp-content/uploads/2021/07/aniyuki-wallpaper-madara-35.jpg');
             background-position: center;
             background-size: cover;
             background-repeat: no-repeat;
-            border-radius: 16px;
             height: 100%;
         }
 
-        #quote {
+        #container {
+            height: 100%;
             text-align: center;
             color: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding: 1rem;
+            position: relative;
         }
 
         h1 {
             margin-top: auto;
+            font-size: 1rem;
         }
 
         .date {
-            margin-top: auto;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 1rem;
         }
+
     </style>
 </head>
 <body>
     <main>
-        <div id="quote">
-            <h1>Wake up to reality. Nothing ever goes as planned in this accursed world.</h1>
-            <p>- Madara Uchiha</p>
+        <div id="container">
+            <div id="quote">
+                <h1>Wake up to reality. Nothing ever goes as planned in this accursed world.</h1>
+                <p>- Madara Uchiha</p>
+            </div>
             <p class="date">{{ date }}</p>
         </div>
     </main>

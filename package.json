@@ -5,7 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
@@ -14,12 +15,16 @@
     "nodemon": "^2.0.20"
   },
   "dependencies": {
+    "@types/ffmpeg": "^1.0.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "ffmpeg": "0.0.4",
     "instagram-private-api": "^1.45.3",
     "morgan": "^1.10.0",
+    "node-fetch": "^2.6.7",
     "node-html-to-image": "^3.2.4",
     "png-to-jpeg": "^1.0.1",
-    "re2": "^1.17.7"
+    "re2": "^1.17.7",
+    "ytdl-core": "^4.11.2"
   }
 }
