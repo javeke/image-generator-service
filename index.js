@@ -100,6 +100,7 @@ app.get('/download', async (req, res) => {
     const tempFileName = 'temp';
     const startTimeInS = '0.0';
     const durationInS = '60.0';
+    const youtubeUrl = 'https://www.youtube.com/watch';
 
     const highestFormats = videoInfo.formats
         .filter( format => format.container === MP4_FORMAT && format.hasAudio && format.hasVideo )
@@ -113,7 +114,7 @@ app.get('/download', async (req, res) => {
         });
     }
     
-    const response = ytdl(`https://www.youtube.com/watch?v=${vId}`, {
+    const response = ytdl(`${youtubeUrl}?v=${vId}`, {
         filter: format => format.container === MP4_FORMAT && format.hasAudio && format.hasVideo,
         quality: 'highest',
     })

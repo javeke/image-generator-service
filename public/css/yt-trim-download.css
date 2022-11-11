@@ -10,6 +10,18 @@ body {
     background-color: #e7e7e7;
 }
 
+.error-container {
+    display: grid;
+    place-items: center;
+    margin: 1em 0;
+}
+
+.error-message {
+    background-color: #ef0203b0;
+    padding: 1em 2em;
+    border-radius: 1em;
+}
+
 .downloader-container {
     display: grid;
     grid-template-columns: auto;
