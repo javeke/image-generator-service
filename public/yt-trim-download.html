@@ -9,23 +9,43 @@
         <link rel="stylesheet" href="css/yt-trim-download.css">
     </head>
     <body>
+        <header>
+            <h1>Crop & Download</h1>
+        </header>
         <main id="main-container">
-            <div id="error-container">
-                <p class="error-message"></p>
+            <div id="message-container">
+                <p class="message" hidden></p>
             </div>
             <div class="downloader-container">
-                <video id="video"></video>
+                <div class="yt-container">
+                    <div id="yt-player"></div>
+                </div>
                 <form action="" class="download-form" id="download-form">    
-                    <input id="url-input" type="text" placeholder="Enter Youtube url here..." required>
-                    <input id="start-input" type="text" placeholder="Start time">
-                    <input id="end-input" type="text" placeholder="End time">
-                    <div id="download">
-                        <button id="download-btn" type="submit">Download</button>
+                    <div class="form-control url-container">
+                        <label for="url-input">Youtube Url</label>
+                        <input id="url-input" name="url-input" type="text" placeholder="Enter Youtube url here..." required>
                     </div>
+                    <div class="form-control">
+                        <label for="start-input">Start time </label>
+                        <input id="start-input" name="start-input" type="text" placeholder="00:00:00" required pattern="[0-9]{2}:[0-5][0-9]:[0-5][0-9]">
+                    </div>
+                    <div class="form-control">
+                        <label for="end-input">End time </label>
+                        <input id="end-input" name="end-input" type="text" placeholder="23:59:59" required pattern="[0-9]{2}:[0-5][0-9]:[0-5][0-9]">
+                    </div>
+                    <div id="download">
+                        <button id="download-btn" type="submit">
+                            <span id="download-text">Download</span>
+                            <svg id="download-loading" class="loading hide">
+                                <circle cx="10" cy="10" r="8" />
+                            </svg>
+                        </button>
+                    </div>
+                    <a id="download-link" download hidden></a>
                 </form>
             </div>
         </main>
-
+        <script src="https://www.youtube.com/iframe_api" defer></script>
         <script src="js/yt-trim-download.js" defer></script>
     </body>
 </html>

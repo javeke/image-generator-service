@@ -1,8 +1,8 @@
 version: '3.5'
 
 services:
-  image-generator:
-    container_name: image-ws
+  media:
+    container_name: media-ws
     build: 
       context: .
     image: javeke/image-generator
