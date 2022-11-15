@@ -22,10 +22,9 @@ async function main(){
         fs.writeFileSync(path.join(__dirname, `/${fileName}-cut.${MP4_FORMAT}`), ffmpeg.FS('readFile', `${tempFileName}.${MP4_FORMAT}`));
         ffmpeg.FS('unlink', `${fileName}.${MP4_FORMAT}`);
         ffmpeg.FS('unlink', `${tempFileName}.${MP4_FORMAT}`);
-        fs.unlinkSync(path.join(__dirname, `${fileName}.${MP4_FORMAT}`));
 
         parentPort.postMessage({
-            success: false
+            success: true
         });
     }
     catch(error) {

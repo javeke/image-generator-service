@@ -1,16 +1,24 @@
-const express = require('express')
-const htmlToImage = require('node-html-to-image');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const pngToJpeg = require('png-to-jpeg');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+
+const htmlToImage = require('node-html-to-image');
+const pngToJpeg = require('png-to-jpeg');
+
 const nodeFetch = require('node-fetch');
+
 const ytdl = require('ytdl-core');
 const { Worker } = require('worker_threads');
 const crypto = require('crypto');
 
+const { Server } = require('socket.io');
+const { createServer } = require('http');
+
 const app = express();
+const httpServer = createServer(app);
+const socketIO = new Server(httpServer);
 
 app.use(express.static('public'));
 app.use(morgan('combined'))
@@ -19,8 +27,7 @@ app.use(express.static('templates'));
 
 dotenv.config();
 
-const PORT = process.env.PORT;
-
+const PORT = process.env.PORT || 5000;
 
 app.get('/health', async (req, res)=>{
     return res.status(200).json({ success: true, message: 'App is healthy 💚'})
@@ -106,31 +113,44 @@ app.get('/download', async (req, res) => {
                     startTimeInS
                 }
             });
-            
-            res.on('finish', () => {
-                fs.unlinkSync(path.join(__dirname, `${fileName}-cut.${MP4_FORMAT}`));
-            });
 
             worker.on('message', (data) => {
-                if(data.success)
-                    return res.status(200).sendFile(path.join(__dirname, `/${fileName}-cut.${MP4_FORMAT}`));
-                return res.status(500).json({
+                console.log(`Job Done Event: ${jobId} ${data.success ? 'Success' : 'Failed'}`);
+                if(data.success){
+                    return socketIO.emit(`job-done-${jobId}`, JSON.stringify({
+                        message: "Video processing finished",
+                        success: true,
+                        jobId
+                    }));
+                }
+
+                return socketIO.emit(`job-done-${jobId}`, JSON.stringify({
+                    message: "Video processing failed",
                     success: false,
-                    message: `Internal Server Error: Conversion failed`
-                });
+                    jobId
+                }));
             });
 
             worker.on('error', (err) => {
                 console.log(err);
-                return res.status(500).json({
-                    success: false,
-                    message: `Internal Server Error: Worker failed`
-                });
+                return socketIO.emit(`job-done-${jobId}`, JSON.stringify({
+                    message: "Worker failed",
+                    success: false, 
+                    jobId
+                }));
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: `Job ${jobId} started`,
+                data: {
+                    jobId
+                }
             });
         }
         catch(error){
             console.error(error);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 message: `Internal Server Error: ${error}`
             });
@@ -138,6 +158,38 @@ app.get('/download', async (req, res) => {
     }); 
 });
 
-app.listen(PORT, async () => {
-    console.log("App started on port: "+PORT || 5000);
+app.get('/finish-job/:jobId', (req, res) => {
+    try {
+        const { jobId } = req.params;
+    
+        const fileName = `source-${jobId}`;
+        const MP4_FORMAT = 'mp4';
+        const filePath = path.join(__dirname, `${fileName}-cut.${MP4_FORMAT}`);
+    
+        if (!fs.existsSync(filePath)){
+            return res.status(404).json({
+                success: false,
+                message: `Internal Server Error: File not found`
+            });
+        }
+    
+        res.on('finish', () => {
+            fs.unlinkSync(path.join(__dirname, `${fileName}.${MP4_FORMAT}`));
+            fs.unlinkSync(filePath);
+        });
+    
+        res.status(200).sendFile(filePath);
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: `Internal Server Error: An error occurred`
+        });
+    }
+
+});
+
+httpServer.listen(PORT, async () => {
+    console.log("App started on port: "+PORT);
 });

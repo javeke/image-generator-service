@@ -17,12 +17,15 @@ const SECONDS_IN_MINUTES = 60;
 const ONE_EM = 12;
 const PLAYER_WIDTH = 480;
 const PLAYER_HEIGHT = 290;
+const HTTP_OK = 200;
 
 let youtubePlayer = null;
 let messageTimerId = null;
 const currentVideoId = '';
 const startSeconds = 0;
 const endSeconds = 0;
+
+const socket = io();
 
 function onYouTubeIframeAPIReady(){
 
@@ -95,7 +98,7 @@ function displayMessage(message, messageType){
     messageContainer.classList.add(messageType);
     messageContainer.hidden = false;
 
-    messageTimerId = setTimeout(() => messageContainer.hidden = true, 3000);
+    messageTimerId = setTimeout(() => messageContainer.hidden = true, 6000);
 }
 
 function setDownloadLoading(isInProgres = false){
@@ -224,7 +227,6 @@ downloadForm.addEventListener('submit', async (event) => {
         return;
     }
 
-
     let videoId = '';
 
     if(url.includes('youtu.be')) {
@@ -233,8 +235,6 @@ downloadForm.addEventListener('submit', async (event) => {
     else {
         videoId = new URL(url).searchParams.get('v');
     }
-
-    const HTTP_OK = 200;
     
     downloadBtn.disabled = true;
     setDownloadLoading(true);
@@ -247,15 +247,47 @@ downloadForm.addEventListener('submit', async (event) => {
         return;
     }
 
-    const videoData = await response.blob();
+    const jsonBody = await response.json();
 
-    const downloadUrl =  URL.createObjectURL(videoData);
-    
-    downloadLink.href = downloadUrl;
-    downloadLink.download = "video-cut.mp4";
-    downloadLink.click();
-
-    displayMessage('Job Completed 🎉', 'success');
-    downloadBtn.disabled = false;
-    setDownloadLoading(false);
+    const { jobId } = jsonBody.data;
+    displayMessage("Video cropping started. Please wait here...", 'success');
+    socket.on(`job-done-${jobId}`, finishJob);
 });
+
+async function finishJob(msg) {
+    try {
+        const { success, jobId } = JSON.parse(msg);
+    
+        if(!success) {
+            displayMessage("Video cropping failed!", 'error');
+            downloadBtn.disabled = false;
+            setDownloadLoading(false);
+            return;
+        }
+        
+        const response = await fetch(`/finish-job/${jobId}`);
+        if (response.status !== HTTP_OK) {
+            displayMessage("Please try again. File corrupted.", 'error');
+            downloadBtn.disabled = false;
+            setDownloadLoading(false);
+            return;
+        }
+        const videoData = await response.blob();
+    
+        const downloadUrl =  URL.createObjectURL(videoData);
+        
+        downloadLink.href = downloadUrl;
+        downloadLink.download = "video-cut.mp4";
+        downloadLink.click();
+    
+        displayMessage('Job Completed 🎉. Video downloading...', 'success');
+        downloadBtn.disabled = false;
+        setDownloadLoading(false);
+
+    } catch (error) {
+        displayMessage("An error occurred. Please report the issue", 'error');
+        downloadBtn.disabled = false;
+        setDownloadLoading(false);
+    }
+
+}

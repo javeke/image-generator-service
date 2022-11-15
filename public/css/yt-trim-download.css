@@ -165,3 +165,10 @@ label {
         grid-column: span 2;
     }
 }
+
+@media screen and (min-width: 800px) {
+    .downloader-container {
+        grid-template-columns: auto auto;
+        place-content: center;
+    }
+}
